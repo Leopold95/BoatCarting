@@ -3,6 +3,7 @@ package me.leopold95.boatcarting;
 import lombok.Getter;
 import me.leopold95.boatcarting.commands.BoatCartingCommand;
 import me.leopold95.boatcarting.core.Config;
+import me.leopold95.boatcarting.core.ConfigArenas;
 import me.leopold95.boatcarting.core.Keys;
 import me.leopold95.boatcarting.engine.Engine;
 import me.leopold95.boatcarting.enums.Commands;
@@ -20,6 +21,7 @@ public final class BoatCarting extends JavaPlugin {
     @Override
     public void onEnable() {
         Config.register(this);
+        ConfigArenas.register(this, "arenas.yml");
 
         keys = new Keys(this);
         engine = new Engine(this);

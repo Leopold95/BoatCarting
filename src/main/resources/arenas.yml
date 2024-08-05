@@ -1,0 +1,17 @@
+
+
+arenas-world: world
+
+arenas:
+  1:
+    numeric-id: 1
+    lobbySpawn:
+      x: 0
+      y: 0
+      z: 0
+  second:
+    numeric-id: 2
+    lobbySpawn:
+      x: 0
+      y: 0
+      z: 0
