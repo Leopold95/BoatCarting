@@ -1,0 +1,25 @@
+name: BoatCarting
+version: '${version}'
+main: me.leopold95.boatcarting.BoatCarting
+api-version: '1.20'
+author: Leopold95
+website: https://www.ukr-minecraft-plugin.fun/
+
+commands:
+  boatcarting:
+    usage: "/boatcarting <args>"
+    description: "Нолвна команда плагіну"
+
+permissions:
+  ukrplugin.boatcarting.start:
+    default: op
+    description: "Використовується для доступу к команді початку події"
+  ukrplugin.boatcarting.stop:
+    default: op
+    description: "Використовується для доступу к команді завершення події"
+  ukrplugin.boatcarting.join:
+    default: op
+    description: "Використовується для доступу к команді долучення до події"
+  ukrplugin.boatcarting.leave:
+    default: op
+    description: "Використовується для доступу к команді виходу події"

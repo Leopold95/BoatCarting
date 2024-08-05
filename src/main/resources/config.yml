@@ -1,0 +1,8 @@
+
+
+to-top-blocks:
+  LADDER: 0.1
+  DIRT: 0.2
+
+to-forward-blocks:
+  DIRT: 0.2
