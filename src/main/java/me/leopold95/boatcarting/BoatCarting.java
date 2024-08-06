@@ -28,7 +28,7 @@ public final class BoatCarting extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
 
-        getCommand(Commands.BOAT_CARTING).setExecutor(new BoatCartingCommand());
-        getCommand(Commands.BOAT_CARTING).setTabCompleter(new BoatCartingCommand());
+        getCommand(Commands.BOAT_CARTING).setExecutor(new BoatCartingCommand(this));
+        getCommand(Commands.BOAT_CARTING).setTabCompleter(new BoatCartingCommand(this));
     }
 }

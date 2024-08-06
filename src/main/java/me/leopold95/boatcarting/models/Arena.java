@@ -2,7 +2,12 @@ package me.leopold95.boatcarting.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
+import me.leopold95.boatcarting.core.Config;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import java.util.List;
 
 /**
  * Класс-модель арены
@@ -12,8 +17,10 @@ import org.bukkit.Location;
 public class Arena {
     private String specialId;
     private int numericId;
+    @Setter
     private ArenaState state;
     private Location lobbySpawn;
+    private List<Player> players;
 
     /**
      * Закрыть арену на ожидание игроков

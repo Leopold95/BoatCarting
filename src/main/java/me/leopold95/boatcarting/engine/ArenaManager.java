@@ -90,7 +90,8 @@ public class ArenaManager {
                     specialKey,
                     numericId,
                     ArenaState.EMPTY,
-                    lobbySpawn
+                    lobbySpawn,
+                    new ArrayList<>()
                 ));
             }
             catch (Exception exp){

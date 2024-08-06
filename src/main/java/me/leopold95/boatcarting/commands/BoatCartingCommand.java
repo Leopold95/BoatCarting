@@ -1,21 +1,28 @@
 package me.leopold95.boatcarting.commands;
 
+import me.leopold95.boatcarting.BoatCarting;
 import me.leopold95.boatcarting.core.Config;
 import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.enums.Permissions;
+import me.leopold95.boatcarting.models.Arena;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BoatCartingCommand implements CommandExecutor, TabCompleter {
+    private BoatCarting plugin;
+
+    public BoatCartingCommand(BoatCarting plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         return List.of();
@@ -45,7 +52,13 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
+                Optional<Arena> arena = plugin.getEngine().getArenaManager().findEmpty();
+                if(arena.isEmpty()){
+                    player.sendMessage(Config.getMessage("game.no-available-arena"));
+                    return true;
+                }
 
+                plugin.getEngine().startPlayersSearching(player, arena.get());
             }
 
             case Commands.STOP_EVENT -> {

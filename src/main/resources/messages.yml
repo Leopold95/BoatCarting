@@ -10,6 +10,11 @@ arena-loading:
   unexpected: "Невідома помилка при заватаженіі арени: {exp}"
   no-world: "Вказаного світу для арен не існує"
 
+loading:
+  no-after-game-spawn-section: "В конфігу не вказана секція зі спавном після гри. Вимкнення"
+  bad-after-game-spawn-world: "Вказаного світу для спавна не існує"
+
+command-template: "{first} {second} {third}"
 
 bad-command-args: "Використовуйте \{first} {second} {third}"
 no-permission: "У вас недостаньо прав для використання цієї команди"
@@ -24,3 +29,12 @@ bat-to-forward-mod: "Множник матеріалу '{mat}' для стриб
 
 placeholders:
   args: "<аргументи>"
+
+
+game:
+  no-available-arena: "Зараз немає свободної арени"
+  started: "Почався картінг на лодках. Встигни долучитися. Натисніть на це повідомлення або Введіть команду /"
+  teleported-to-arena: "Вас було перенесено на '{number}' арену"
+  teleported-from-arena: "Вас видалено з арени"
+  join:
+    no-arena: "Арени з таким номером не існує"
