@@ -35,20 +35,29 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if(args.length != 1){
-            String message = Config.getMessage("bad-command-args")
-                            .replace("{first}", Commands.BOAT_CARTING)
-                            .replace("{second}", Config.getMessage("placeholders.args"))
-                            .replace("{third}", "");
-
-            sender.sendMessage(message);
-            return true;
-        }
+//        if(args.length != 1){
+//            String message = Config.getMessage("bad-command-args")
+//                            .replace("{first}", Commands.BOAT_CARTING)
+//                            .replace("{second}", Config.getMessage("placeholders.args"))
+//                            .replace("{third}", "");
+//
+//            sender.sendMessage(message);
+//            return true;
+//        }
 
         switch (args[0]){
             case Commands.START_EVENT -> {
                 if(!player.hasPermission(Permissions.START)){
                     player.sendMessage(Config.getMessage("no-permission"));
+                    return true;
+                }
+
+                if(args.length != 2){
+                    String message = Config.getMessage("command-template")
+                                    .replace("{first}", Commands.BOAT_CARTING)
+                                    .replace("{second}", Commands.START_EVENT)
+                                    .replace("{third}", "");
+                    sender.sendMessage("/"+message);
                     return true;
                 }
 
@@ -61,16 +70,44 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                 plugin.getEngine().startPlayersSearching(player, arena.get());
             }
 
-            case Commands.STOP_EVENT -> {
-                if(!player.hasPermission(Permissions.STOP)){
+            case Commands.JOIN_EVENT -> {
+                if(!player.hasPermission(Permissions.JOIN)){
                     player.sendMessage(Config.getMessage("no-permission"));
                     return true;
                 }
 
+                if(args.length != 3){
+                    String message = Config.getMessage("command-template")
+                            .replace("{first}", Commands.BOAT_CARTING)
+                            .replace("{second}", Commands.JOIN_EVENT)
+                            .replace("{third}", Config.getMessage("placeholders.arena"));
+                    sender.sendMessage("/"+message);
+                    return true;
+                }
+
+                try {
+                    int numericId = Integer.parseInt(args[2]);
+
+                    Optional<Arena> arena = plugin.getEngine().getArenaManager().getEmptyByNumeric(numericId);
+
+                    if(arena.isEmpty()){
+                        player.sendMessage(Config.getMessage("game.join.no-arena"));
+                        return true;
+                    }
+
+                    plugin.getEngine().joinGame(player, arena.get());
+                }
+                catch (Exception ext){
+                    String message = Config.getMessage("command-template")
+                            .replace("{first}", Commands.BOAT_CARTING)
+                            .replace("{second}", Commands.JOIN_EVENT)
+                            .replace("{third}", Config.getMessage("placeholders.arena"));
+                    sender.sendMessage("/"+message);
+                }
             }
 
-            case Commands.JOIN_EVENT -> {
-                if(!player.hasPermission(Permissions.JOIN)){
+            case Commands.STOP_EVENT -> {
+                if(!player.hasPermission(Permissions.STOP)){
                     player.sendMessage(Config.getMessage("no-permission"));
                     return true;
                 }

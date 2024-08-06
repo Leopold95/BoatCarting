@@ -89,6 +89,7 @@ public class ArenaManager {
                 arenas.add(new Arena(
                     specialKey,
                     numericId,
+                    section.getInt(key + ".max-players"),
                     ArenaState.EMPTY,
                     lobbySpawn,
                     new ArrayList<>()

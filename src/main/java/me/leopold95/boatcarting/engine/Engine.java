@@ -2,7 +2,9 @@ package me.leopold95.boatcarting.engine;
 
 import lombok.Getter;
 import me.leopold95.boatcarting.BoatCarting;
+import me.leopold95.boatcarting.abstrction.RepeatingTask;
 import me.leopold95.boatcarting.core.Config;
+import me.leopold95.boatcarting.engine.tasks.EventTickerTask;
 import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.models.Arena;
 import me.leopold95.boatcarting.models.ArenaState;
@@ -10,6 +12,7 @@ import me.leopold95.boatcarting.models.Event;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -89,11 +92,68 @@ public class Engine {
         }
 
         arena.setState(ArenaState.PLAYERS_WAITING);
+        new EventTickerTask(plugin, arena, this);
         arena.getPlayers().add(caller);
         caller.sendMessage(Config.getMessage("game.teleported-to-arena"));
         caller.teleport(arena.getLobbySpawn());
     }
 
+    /**
+     * Присоединится к игре
+     * @param joiner игрок
+     * @param arena арена
+     */
+    public void joinGame(Player joiner, Arena arena){
+        joiner.teleport(arena.getLobbySpawn());
+        joiner.sendMessage(Config.getMessage("game.join.ok"));
+    }
+
+    /**
+     * НАчать игру
+     * @param arena арена
+     */
+    public void startGame(Arena arena){
+        arena.setState(ArenaState.ACTIVE_GAME);
+
+        for(Player player: arena.getPlayers()){
+            player.sendMessage(Config.getMessage("game.starting-5"));
+        }
+
+        arena.blockPlayerMovement(plugin.getKeys().CANT_MOVE);
+        arena.teleportPlayersToPositions();
+
+        new RepeatingTask(plugin,0, 20) {
+            private int secondsPassed = 0;
+            private int prepareTime = Config.getInt("times.game-prepare");
+
+            @Override
+            public void run() {
+                if(secondsPassed == prepareTime){
+                    for(Player player: arena.getPlayers()){
+                        player.sendTitlePart(TitlePart.TITLE, Component.text(Config.getMessage("game.starting")));
+                        arena.unlockPlayerMovement(plugin.getKeys().CANT_MOVE);
+                    }
+
+                    cancel();
+                    return;
+                }
+
+                for(Player player: arena.getPlayers()){
+                    player.sendTitlePart(TitlePart.TITLE, Component.text(Config.getMessage("game.starting-in")
+                            .replace("{time}", String.valueOf(secondsPassed))));
+                }
+
+                secondsPassed++;
+            }
+        };
+    }
+
+    /**
+     * Проверка для того чтобы подпрыгнуть
+     * @param boat лодка
+     * @param oppositeMaterial материал перед лодкой
+     * @param underMaterial материал над лодкой
+     */
     public void checkJump(Boat boat, Material oppositeMaterial, Material underMaterial){
         if(toTopMap.containsKey(oppositeMaterial)){
             addTopVelocity(boat, toTopMap.get(oppositeMaterial));

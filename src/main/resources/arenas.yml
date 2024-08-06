@@ -5,12 +5,14 @@ arenas-world: world
 arenas:
   1:
     numeric-id: 1
+    max-players: 5
     lobbySpawn:
       x: 0
       y: 0
       z: 0
   second:
     numeric-id: 2
+    max-players: 5
     lobbySpawn:
       x: 0
       y: 0

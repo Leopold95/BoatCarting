@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import me.leopold95.boatcarting.core.Config;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
 
@@ -17,29 +20,32 @@ import java.util.List;
 public class Arena {
     private String specialId;
     private int numericId;
+    private int maxPlayers;
     @Setter
     private ArenaState state;
     private Location lobbySpawn;
     private List<Player> players;
 
-    /**
-     * Закрыть арену на ожидание игроков
-     */
-    public void setGameWaiting(){
-        state = ArenaState.PLAYERS_WAITING;
+    public void teleportPlayersToPositions(){
+
     }
 
-    /**
-     * ЗАкрыть арену на игру
-     */
-    public void setGameActive(){
-        state = ArenaState.ACTIVE_GAME;
+    public void blockPlayerMovement(NamespacedKey blockKey){
+        for(Player player: players){
+            if(player == null){
+                continue;
+            }
+            player.getPersistentDataContainer().set(blockKey, PersistentDataType.INTEGER, 1);
+        }
     }
 
-    /**
-     * Открыть арену
-     */
-    public void open(){
-        state = ArenaState.EMPTY;
+    public void unlockPlayerMovement(NamespacedKey blockKey){
+        for(Player player: players){
+            if(player == null){
+                continue;
+            }
+
+            player.getPersistentDataContainer().remove(blockKey);
+        }
     }
 }
