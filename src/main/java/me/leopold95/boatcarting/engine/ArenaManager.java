@@ -85,6 +85,26 @@ public class ArenaManager {
             double z = section.getDouble(key + ".lobbySpawn.z");
             Location lobbySpawn = new Location(arenasWorld, x, y, z);
 
+            //инит позиций спавнов
+            ConfigurationSection spawnsSection = section.getConfigurationSection(key + ".spawn-points.poses");
+            if(spawnsSection == null || spawnsSection.getKeys(false).isEmpty()){
+                plugin.getLogger().warning(Config.getMessage("arena-loading.no-spawns-sections"));
+                return;
+            }
+            List<Location> spawns = new ArrayList<>();
+            for(String line: spawnsSection.getKeys(true)){
+                try {
+                    String[] positions = spawnsSection.getString(line).split(":");
+                    double sX = Double.parseDouble(positions[0]);
+                    double sZ = Double.parseDouble(positions[1]);
+                    double sY = spawnsSection.getDouble(key + ".spawn-points.y");
+                    spawns.add(new Location(arenasWorld, sX, sY, sZ));
+                }catch (Exception exp){
+                    plugin.getLogger().warning(
+                            Config.getMessage("arena-loading.error-parsing-spawn-points").replace("{exp}", exp.getMessage()));
+                }
+            }
+
             try {
                 arenas.add(new Arena(
                     specialKey,
@@ -92,7 +112,8 @@ public class ArenaManager {
                     section.getInt(key + ".max-players"),
                     ArenaState.EMPTY,
                     lobbySpawn,
-                    new ArrayList<>()
+                    new ArrayList<>(),
+                    spawns
                 ));
             }
             catch (Exception exp){

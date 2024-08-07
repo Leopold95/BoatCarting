@@ -7,6 +7,7 @@ import me.leopold95.boatcarting.core.ConfigArenas;
 import me.leopold95.boatcarting.core.Keys;
 import me.leopold95.boatcarting.engine.Engine;
 import me.leopold95.boatcarting.enums.Commands;
+import me.leopold95.boatcarting.listeners.PlayerJoinListener;
 import me.leopold95.boatcarting.listeners.PlayerMoveListener;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,6 +28,7 @@ public final class BoatCarting extends JavaPlugin {
         engine = new Engine(this);
 
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
 
         getCommand(Commands.BOAT_CARTING).setExecutor(new BoatCartingCommand(this));
         getCommand(Commands.BOAT_CARTING).setTabCompleter(new BoatCartingCommand(this));

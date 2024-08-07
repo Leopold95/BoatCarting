@@ -25,7 +25,12 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        return List.of();
+        return List.of(
+                Commands.START_EVENT,
+                Commands.JOIN_EVENT,
+                Commands.STOP_EVENT,
+                Commands.LEAVE_EVENT
+        );
     }
 
     @Override
@@ -76,17 +81,18 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                if(args.length != 3){
-                    String message = Config.getMessage("command-template")
+                if(args.length != 2){
+                    String message = Config.getMessage("bad-command-args")
                             .replace("{first}", Commands.BOAT_CARTING)
                             .replace("{second}", Commands.JOIN_EVENT)
                             .replace("{third}", Config.getMessage("placeholders.arena"));
+
                     sender.sendMessage("/"+message);
                     return true;
                 }
 
                 try {
-                    int numericId = Integer.parseInt(args[2]);
+                    int numericId = Integer.parseInt(args[1]);
 
                     Optional<Arena> arena = plugin.getEngine().getArenaManager().getEmptyByNumeric(numericId);
 

@@ -25,6 +25,7 @@ public class Arena {
     private ArenaState state;
     private Location lobbySpawn;
     private List<Player> players;
+    private List<Location> spawnPoints;
 
     public void teleportPlayersToPositions(){
 

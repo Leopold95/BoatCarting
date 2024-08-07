@@ -4,6 +4,7 @@ import me.leopold95.boatcarting.abstrction.RepeatingTask;
 import me.leopold95.boatcarting.core.Config;
 import me.leopold95.boatcarting.engine.Engine;
 import me.leopold95.boatcarting.models.Arena;
+import me.leopold95.boatcarting.models.ArenaState;
 import org.bukkit.plugin.Plugin;
 
 public class EventTickerTask extends RepeatingTask {
@@ -34,7 +35,7 @@ public class EventTickerTask extends RepeatingTask {
             return;
         }
 
-        if(secondsPassed == playerWaitTime){
+        if(secondsPassed == playerWaitTime && arena.getState() == ArenaState.PLAYERS_WAITING){
             engine.startGame(arena);
         }
 

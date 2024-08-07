@@ -104,8 +104,24 @@ public class Engine {
      * @param arena арена
      */
     public void joinGame(Player joiner, Arena arena){
+        if(arena.getState() != ArenaState.PLAYERS_WAITING){
+            joiner.sendMessage(Config.getMessage("game.join.cant-join"));
+            return;
+        }
+
+        if(arena.getPlayers().size() >= arena.getSpawnPoints().size()){
+            joiner.sendMessage(Config.getMessage("game.join.not-enough-space"));
+            return;
+        }
+
         joiner.teleport(arena.getLobbySpawn());
         joiner.sendMessage(Config.getMessage("game.join.ok"));
+
+        if(arena.getPlayers().size() == arena.getSpawnPoints().size()){
+            arena.setState(ArenaState.ACTIVE_GAME);
+            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(Config.getMessage("game.players-are-full")));
+            arena.setState(ArenaState.ACTIVE_GAME);
+        }
     }
 
     /**
@@ -114,10 +130,6 @@ public class Engine {
      */
     public void startGame(Arena arena){
         arena.setState(ArenaState.ACTIVE_GAME);
-
-        for(Player player: arena.getPlayers()){
-            player.sendMessage(Config.getMessage("game.starting-5"));
-        }
 
         arena.blockPlayerMovement(plugin.getKeys().CANT_MOVE);
         arena.teleportPlayersToPositions();
@@ -130,6 +142,9 @@ public class Engine {
             public void run() {
                 if(secondsPassed == prepareTime){
                     for(Player player: arena.getPlayers()){
+                        if(player == null)
+                            continue;
+
                         player.sendTitlePart(TitlePart.TITLE, Component.text(Config.getMessage("game.starting")));
                         arena.unlockPlayerMovement(plugin.getKeys().CANT_MOVE);
                     }
@@ -139,6 +154,9 @@ public class Engine {
                 }
 
                 for(Player player: arena.getPlayers()){
+                    if(player == null)
+                        continue;
+
                     player.sendTitlePart(TitlePart.TITLE, Component.text(Config.getMessage("game.starting-in")
                             .replace("{time}", String.valueOf(secondsPassed))));
                 }
