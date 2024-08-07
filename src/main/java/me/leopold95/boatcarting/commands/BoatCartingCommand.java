@@ -5,6 +5,7 @@ import me.leopold95.boatcarting.core.Config;
 import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.enums.Permissions;
 import me.leopold95.boatcarting.models.Arena;
+import me.leopold95.boatcarting.models.ArenaState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,7 +30,8 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                 Commands.START_EVENT,
                 Commands.JOIN_EVENT,
                 Commands.STOP_EVENT,
-                Commands.LEAVE_EVENT
+                Commands.LEAVE_EVENT,
+                Commands.PRE_START_EVENT
         );
     }
 
@@ -40,16 +42,6 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-//        if(args.length != 1){
-//            String message = Config.getMessage("bad-command-args")
-//                            .replace("{first}", Commands.BOAT_CARTING)
-//                            .replace("{second}", Config.getMessage("placeholders.args"))
-//                            .replace("{third}", "");
-//
-//            sender.sendMessage(message);
-//            return true;
-//        }
-
         switch (args[0]){
             case Commands.START_EVENT -> {
                 if(!player.hasPermission(Permissions.START)){
@@ -57,12 +49,12 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                if(args.length != 2){
-                    String message = Config.getMessage("command-template")
+                if(args.length != 1){
+                    String message = Config.getMessage("bad-command-args")
                                     .replace("{first}", Commands.BOAT_CARTING)
                                     .replace("{second}", Commands.START_EVENT)
                                     .replace("{third}", "");
-                    sender.sendMessage("/"+message);
+                    sender.sendMessage(message);
                     return true;
                 }
 
@@ -73,6 +65,31 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                 }
 
                 plugin.getEngine().startPlayersSearching(player, arena.get());
+            }
+
+            case Commands.PRE_START_EVENT -> {
+                if(!player.hasPermission(Permissions.PRE_START)){
+                    player.sendMessage(Config.getMessage("no-permission"));
+                    return true;
+                }
+
+                if(args.length != 1){
+                    String message = Config.getMessage("bad-command-args")
+                            .replace("{first}", Commands.BOAT_CARTING)
+                            .replace("{second}", Commands.PRE_START_EVENT)
+                            .replace("{third}", Config.getMessage("placeholders.arena"));
+                    sender.sendMessage(message);
+                    return true;
+                }
+
+                Optional<Arena> playerArena = plugin.getEngine().getArenaManager().getByPlayer(player);
+
+                if(playerArena.isEmpty()){
+                    player.sendMessage(Config.getMessage("pre-start.no-member"));
+                    return true;
+                }
+
+                plugin.getEngine().startGame(playerArena.get());
             }
 
             case Commands.JOIN_EVENT -> {
@@ -87,7 +104,7 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                             .replace("{second}", Commands.JOIN_EVENT)
                             .replace("{third}", Config.getMessage("placeholders.arena"));
 
-                    sender.sendMessage("/"+message);
+                    sender.sendMessage(message);
                     return true;
                 }
 
@@ -104,6 +121,7 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                     plugin.getEngine().joinGame(player, arena.get());
                 }
                 catch (Exception ext){
+                    plugin.getLogger().warning(ext.getMessage());
                     String message = Config.getMessage("command-template")
                             .replace("{first}", Commands.BOAT_CARTING)
                             .replace("{second}", Commands.JOIN_EVENT)
@@ -118,6 +136,26 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
+                if(args.length != 1){
+                    String message = Config.getMessage("bad-command-args")
+                            .replace("{first}", Commands.BOAT_CARTING)
+                            .replace("{second}", Commands.STOP_EVENT)
+                            .replace("{third}", "");
+                    sender.sendMessage(message);
+                    return true;
+                }
+
+                Optional<Arena> arena = plugin.getEngine().getArenaManager().getByPlayer(player);
+                if(arena.isEmpty()){
+                    player.sendMessage(Config.getMessage("stop.no-member"));
+                    return true;
+                }
+
+                arena.get().getPlayers().forEach(p ->
+                    p.sendMessage(Config.getMessage("stop.ended-by").replace("{name}", player.getName()))
+                );
+
+                plugin.getEngine().endGameWithNoWinners(arena.get());
             }
 
             case Commands.LEAVE_EVENT -> {
@@ -125,6 +163,23 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(Config.getMessage("no-permission"));
                     return true;
                 }
+
+                if(args.length != 1){
+                    String message = Config.getMessage("bad-command-args")
+                            .replace("{first}", Commands.BOAT_CARTING)
+                            .replace("{second}", Commands.LEAVE_EVENT)
+                            .replace("{third}", "");
+                    sender.sendMessage(message);
+                    return true;
+                }
+
+                Optional<Arena> arena = plugin.getEngine().getArenaManager().getByPlayer(player);
+                if(arena.isEmpty()){
+                    player.sendMessage(Config.getMessage("leave.no-member"));
+                    return true;
+                }
+
+                plugin.getEngine().leaveGame(player, arena.get());
             }
 
         }

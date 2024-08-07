@@ -1,26 +1,22 @@
-
-
 arenas-world: world
 
 arenas:
   1:
     numeric-id: 1
-    max-players: 5
     lobbySpawn:
-      x: 0
-      y: 0
-      z: 0
+      x: 16
+      y: -60
+      z: -21
     spawn-points:
-      y: 0
+      y: -60
       poses:
-        1: "0:0" #x:z
-        2: "0:0"
-        3: "0:0"
-        4: "0:0"
-        5: "0:0"
+        1: "-2:-12" #x:z
+        2: "-2:-11"
+        3: "-2:-10"
+        4: "-2:-9"
+        5: "-2:-8"
   2:
     numeric-id: 2
-    max-players: 5
     lobbySpawn:
       x: 0
       y: 0

@@ -3,13 +3,12 @@ times:
   max-game-duration: 60
   game-prepare: 5
 
-
 after-game-spawn:
   world: world
   position:
-    x: 0
-    y: 0
-    z: 0
+    x: -9
+    y: -60
+    z: -20
 
 to-top-blocks:
   LADDER: 0.1

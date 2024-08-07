@@ -23,9 +23,14 @@ public class PlayerMoveListener implements Listener {
     @EventHandler
     private void onPlayerMove(PlayerMoveEvent event){
 //        if(!event.getPlayer().getPersistentDataContainer().has(plugin.getKeys().IS_PLAYER_CARTING))
-//            return;
+//            return
 
         Player player = event.getPlayer();
+
+        if(player.getPersistentDataContainer().has(plugin.getKeys().CANT_MOVE)) {
+            event.setCancelled(true);
+            return;
+        }
 
         if(player.getVehicle() == null || !(player.getVehicle() instanceof Boat))
             return;

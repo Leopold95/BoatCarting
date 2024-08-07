@@ -54,26 +54,6 @@ public class Engine {
         loadOther();
     }
 
-    private void loadOther() {
-        ConfigurationSection section = Config.getSection("after-game-spawn");
-        if(section == null || section.getKeys(false).isEmpty()){
-            plugin.getLogger().warning(Config.getMessage("loading.no-after-game-spawn-section"));
-            return;
-        }
-
-        String spawnWorldName = Config.getString("after-game-spawn.world");
-        World spawnWorld = Bukkit.getWorld(spawnWorldName);
-        if(spawnWorld == null){
-            plugin.getLogger().warning(Config.getMessage("loading.bad-after-game-spawn-world"));
-            return;
-        }
-
-        double x = Config.getDouble("after-game-spawn.position.x");
-        double y = Config.getDouble("after-game-spawn.position.y");
-        double z = Config.getDouble("after-game-spawn.position.z");
-        afterGameSpawn = new Location(spawnWorld, x, y, z);
-    }
-
     /**
      * Запуск аодбора игроков для начала игры
      */
@@ -85,16 +65,14 @@ public class Engine {
 
         String message = Config.getMessage("game.started") + command;
 
-        TextComponent text = Component.text(message).clickEvent(ClickEvent.runCommand(command));
+        TextComponent text = Component.text().append(Component.text(message)).clickEvent(ClickEvent.runCommand(command)).build();
 
-        for (Player player: Bukkit.getOnlinePlayers()){
-            player.sendMessage(text);
-        }
+        Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(text));
 
         arena.setState(ArenaState.PLAYERS_WAITING);
         new EventTickerTask(plugin, arena, this);
         arena.getPlayers().add(caller);
-        caller.sendMessage(Config.getMessage("game.teleported-to-arena"));
+        caller.sendMessage(Config.getMessage("game.teleported-to-arena").replace("{number}", String.valueOf(arena.getNumericId())));
         caller.teleport(arena.getLobbySpawn());
     }
 
@@ -125,6 +103,24 @@ public class Engine {
     }
 
     /**
+     * Зевершение игры без начала
+     * @param arena игрена
+     */
+    public void endGameWithNoWinners(Arena arena){
+        for(Player p: arena.getPlayers()){
+            if (p == null) continue;
+
+            p.sendMessage(Config.getMessage("game.was-not-started"));
+            p.teleport(afterGameSpawn);
+        }
+
+        arena.getPlayers().clear();
+        arena.setState(ArenaState.EMPTY);
+
+        //plugin.getLogger().warning(arena.toString());
+    }
+
+    /**
      * НАчать игру
      * @param arena арена
      */
@@ -132,6 +128,7 @@ public class Engine {
         arena.setState(ArenaState.ACTIVE_GAME);
 
         arena.blockPlayerMovement(plugin.getKeys().CANT_MOVE);
+        arena.teleportPlayersToPositions();
         arena.teleportPlayersToPositions();
 
         new RepeatingTask(plugin,0, 20) {
@@ -146,8 +143,9 @@ public class Engine {
                             continue;
 
                         player.sendTitlePart(TitlePart.TITLE, Component.text(Config.getMessage("game.starting")));
-                        arena.unlockPlayerMovement(plugin.getKeys().CANT_MOVE);
                     }
+
+                    arena.unlockPlayerMovement(plugin.getKeys().CANT_MOVE);
 
                     cancel();
                     return;
@@ -164,6 +162,15 @@ public class Engine {
                 secondsPassed++;
             }
         };
+    }
+
+    /**
+     * Досрочно покинуть арену
+     * @param player игрок
+     * @param arena арена
+     */
+    public void leaveGame(Player player, Arena arena){
+
     }
 
     /**
@@ -238,5 +245,25 @@ public class Engine {
 
             toForwardMap.put(material, modifier);
         }
+    }
+
+    private void loadOther() {
+        ConfigurationSection section = Config.getSection("after-game-spawn");
+        if(section == null || section.getKeys(false).isEmpty()){
+            plugin.getLogger().warning(Config.getMessage("loading.no-after-game-spawn-section"));
+            return;
+        }
+
+        String spawnWorldName = Config.getString("after-game-spawn.world");
+        World spawnWorld = Bukkit.getWorld(spawnWorldName);
+        if(spawnWorld == null){
+            plugin.getLogger().warning(Config.getMessage("loading.bad-after-game-spawn-world"));
+            return;
+        }
+
+        double x = Config.getDouble("after-game-spawn.position.x");
+        double y = Config.getDouble("after-game-spawn.position.y");
+        double z = Config.getDouble("after-game-spawn.position.z");
+        afterGameSpawn = new Location(spawnWorld, x, y, z);
     }
 }

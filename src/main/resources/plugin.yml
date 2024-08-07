@@ -8,7 +8,7 @@ website: https://www.ukr-minecraft-plugin.fun/
 commands:
   boatcarting:
     usage: "/boatcarting <args>"
-    description: "Нолвна команда плагіну"
+    description: "Головна команда плагіну"
 
 permissions:
   ukrplugin.boatcarting.start:
@@ -23,3 +23,6 @@ permissions:
   ukrplugin.boatcarting.leave:
     default: op
     description: "Використовується для доступу к команді виходу події"
+  ukrplugin.boatcarting.prestart:
+    default: op
+    description: "Використовується для доступу к команді почку гри події при недостатніх гравців або раніше часу"

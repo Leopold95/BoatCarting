@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,10 @@ public class ArenaManager {
         loadArenas();
     }
 
+    public Optional<Arena> getByPlayer(Player player){
+        return arenas.stream().filter(a -> a.getPlayers().contains(player)).findFirst();
+    }
+
     /**
      * Найти первую пустую арену
      * @return опцанальная арена
@@ -41,7 +46,7 @@ public class ArenaManager {
      * @return опцианальная арена
      */
     public Optional<Arena> getEmptyByNumeric(int id){
-        return arenas.stream().filter(a -> a.getNumericId() == id && a.getState() == ArenaState.EMPTY).findFirst();
+        return arenas.stream().filter(a -> a.getNumericId() == id).findFirst();
     }
 
     /**
@@ -92,13 +97,14 @@ public class ArenaManager {
                 return;
             }
             List<Location> spawns = new ArrayList<>();
+            double sY = section.getDouble(key + ".spawn-points.y");
             for(String line: spawnsSection.getKeys(true)){
                 try {
                     String[] positions = spawnsSection.getString(line).split(":");
                     double sX = Double.parseDouble(positions[0]);
                     double sZ = Double.parseDouble(positions[1]);
-                    double sY = spawnsSection.getDouble(key + ".spawn-points.y");
                     spawns.add(new Location(arenasWorld, sX, sY, sZ));
+
                 }catch (Exception exp){
                     plugin.getLogger().warning(
                             Config.getMessage("arena-loading.error-parsing-spawn-points").replace("{exp}", exp.getMessage()));
@@ -109,7 +115,6 @@ public class ArenaManager {
                 arenas.add(new Arena(
                     specialKey,
                     numericId,
-                    section.getInt(key + ".max-players"),
                     ArenaState.EMPTY,
                     lobbySpawn,
                     new ArrayList<>(),
