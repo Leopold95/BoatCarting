@@ -27,10 +27,6 @@ public class PlayerMoveListener implements Listener {
 
     @EventHandler
     private void onPlayerMove(PlayerMoveEvent event){
-        //если игрок не участник гонки - скип
-        if(!event.getPlayer().getPersistentDataContainer().has(plugin.getKeys().IS_PLAYER_CARTING))
-            return;
-
         Player player = event.getPlayer();
 
         //если игрок отмечен "заблокировано движение" - блокируем его движение
@@ -38,6 +34,10 @@ public class PlayerMoveListener implements Listener {
             event.setCancelled(true);
             return;
         }
+
+        //если игрок не участник гонки - скип
+        if(!event.getPlayer().getPersistentDataContainer().has(plugin.getKeys().IS_PLAYER_CARTING))
+            return;
 
         checkLeftEvent(player, event.getFrom(), event.getTo());
 

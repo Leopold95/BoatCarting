@@ -1,4 +1,3 @@
-
 #список точек финишов на аренах
 finishes:
   - arena1finish
@@ -29,9 +28,11 @@ after-game-spawn:
     y: -60
     z: -20
 
+#блоки, которые дают ускорение вверх
 to-top-blocks:
   LADDER: 0.1
   DIRT: 0.2
 
+#блоки, которые дают ускорение вперед
 to-forward-blocks:
   DIRT: 0.2

@@ -24,6 +24,7 @@ import java.util.List;
 public class Arena {
     private String specialId;
     private int numericId;
+    private String region;
     @Setter
     private ArenaState state;
     private Location lobbySpawn;

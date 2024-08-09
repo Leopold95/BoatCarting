@@ -1,9 +1,15 @@
 package me.leopold95.boatcarting.engine;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.Getter;
 import me.leopold95.boatcarting.BoatCarting;
 import me.leopold95.boatcarting.abstrction.RepeatingTask;
 import me.leopold95.boatcarting.core.Config;
+import me.leopold95.boatcarting.core.ConfigArenas;
 import me.leopold95.boatcarting.engine.tasks.EventTickerTask;
 import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.models.Arena;
@@ -19,6 +25,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
@@ -86,97 +93,6 @@ public class Engine {
     }
 
     /**
-     * Присоединится к игре
-     * @param joiner игрок
-     * @param arena арена
-     */
-    public void joinGame(Player joiner, Arena arena){
-        if(arena.getState() != ArenaState.PLAYERS_WAITING){
-            joiner.sendMessage(Config.getMessage("game.join.cant-join"));
-            return;
-        }
-
-        if(arena.getPlayers().size() >= arena.getSpawnPoints().size()){
-            joiner.sendMessage(Config.getMessage("game.join.not-enough-space"));
-            return;
-        }
-
-        joiner.teleport(arena.getLobbySpawn());
-        joiner.sendMessage(Config.getMessage("game.join.ok"));
-        joiner.getPersistentDataContainer().set(plugin.getKeys().CANT_MOVE, PersistentDataType.INTEGER, 1);
-
-        if(arena.getPlayers().size() == arena.getSpawnPoints().size()){
-            arena.setState(ArenaState.ACTIVE_GAME);
-            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(Config.getMessage("game.players-are-full")));
-        }
-    }
-
-    /**
-     * Зевершение игры без начала
-     * @param arena игрена
-     */
-    public void endGameWithNoWinners(Arena arena){
-        for(Player p: arena.getPlayers()){
-            if (p == null) continue;
-
-            p.sendMessage(Config.getMessage("game.was-not-started"));
-            p.teleport(afterGameSpawn);
-            p.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
-        }
-
-        clearArena(arena);
-    }
-
-    /**
-     * Игрок покинул арену во время заезда не командой
-     * @param player игрок
-     */
-    public void unexpectedArenaLeaving(Player player){
-        Optional<Arena> playerArena = getArenaManager().getByPlayer(player);
-
-        if(playerArena.isPresent()){
-            Arena arena = playerArena.get();
-
-            arena.getPlayers().remove(player);
-        }
-
-        player.teleport(afterGameSpawn);
-        player.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
-        player.sendMessage(Config.getMessage("leave.unexpected"));
-    }
-
-    /**
-     * Завершение игры полсе победы
-     * @param arena арена
-     */
-    public void endGameAfterWinners(Arena arena){
-
-    }
-
-    /**
-     * Сообщить игру о его победе
-     * @param winner игрок, победитель
-     */
-    public void informWinner(Player winner){
-        Optional<Arena> optArena = getArenaManager().getByPlayer(winner);
-        optArena.ifPresent(arena -> {
-            if(arena.getWinners().size() == maxWinners){
-                winner.sendMessage(Config.getMessage("game.win-no-place"));
-                return;
-            }
-
-
-            arena.getWinners().add(winner);
-            String message = Config.getMessage("game.win")
-                    .replace("{place}", String.valueOf(arena.getWinners().size()));
-            winner.sendMessage(message);
-        });
-
-        winner.teleport(afterGameSpawn);
-        winner.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
-    }
-
-    /**
      * НАчать игру
      * @param arena арена
      */
@@ -184,7 +100,6 @@ public class Engine {
         arena.setState(ArenaState.ACTIVE_GAME);
 
         arena.blockPlayerMovement(plugin.getKeys().CANT_MOVE);
-        arena.teleportPlayersToPositions();
         arena.teleportPlayersToPositions();
 
         new RepeatingTask(plugin,0, 20) {
@@ -218,6 +133,97 @@ public class Engine {
                 secondsPassed++;
             }
         };
+    }
+
+    /**
+     * Присоединится к игре
+     * @param joiner игрок
+     * @param arena арена
+     */
+    public void joinGame(Player joiner, Arena arena){
+        if(arena.getState() != ArenaState.PLAYERS_WAITING){
+            joiner.sendMessage(Config.getMessage("game.join.cant-join"));
+            return;
+        }
+
+        if(arena.getPlayers().size() >= arena.getSpawnPoints().size()){
+            joiner.sendMessage(Config.getMessage("game.join.not-enough-space"));
+            return;
+        }
+
+        arena.getPlayers().add(joiner);
+        joiner.teleport(arena.getLobbySpawn());
+        joiner.sendMessage(Config.getMessage("game.join.ok"));
+        joiner.getPersistentDataContainer().set(plugin.getKeys().IS_PLAYER_CARTING, PersistentDataType.INTEGER, 1);
+
+
+        if(arena.getPlayers().size() == arena.getSpawnPoints().size()){
+            arena.setState(ArenaState.ACTIVE_GAME);
+            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(Config.getMessage("game.players-are-full")));
+        }
+    }
+
+    /**
+     * Зевершение игры без начала
+     * @param arena игрена
+     */
+    public void stopGame(Arena arena, String message){
+        for(Player p: arena.getPlayers()){
+            if (p == null) continue;
+
+            p.sendMessage(message);
+            p.teleport(afterGameSpawn);
+            p.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
+        }
+
+        clearArena(arena);
+    }
+
+    /**
+     * Игрок покинул арену во время заезда не командой
+     * @param player игрок
+     */
+    public void unexpectedArenaLeaving(Player player){
+        Optional<Arena> playerArena = getArenaManager().getByPlayer(player);
+
+        if(playerArena.isPresent()){
+            Arena arena = playerArena.get();
+
+            arena.getPlayers().remove(player);
+        }
+
+        player.teleport(afterGameSpawn);
+        player.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
+        player.sendMessage(Config.getMessage("leave.unexpected"));
+    }
+
+    /**
+     * Завершение игры полсе победы
+     * @param arena арена
+     */
+    public void endGameAfterWinners(Arena arena){
+    }
+
+    /**
+     * Сообщить игру о его победе
+     * @param winner игрок, победитель
+     */
+    public void informWinner(Player winner){
+        Optional<Arena> optArena = getArenaManager().getByPlayer(winner);
+        optArena.ifPresent(arena -> {
+            if(arena.getWinners().size() == maxWinners){
+                winner.sendMessage(Config.getMessage("game.win-no-place"));
+                return;
+            }
+
+            arena.getWinners().add(winner);
+            String message = Config.getMessage("game.win")
+                    .replace("{place}", String.valueOf(arena.getWinners().size()));
+            winner.sendMessage(message);
+        });
+
+        winner.teleport(afterGameSpawn);
+        winner.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
     }
 
     /**
@@ -265,10 +271,39 @@ public class Engine {
      * Очистка арены
      * @param arena арена
      */
-    private void clearArena(Arena arena){
+    public void clearArena(Arena arena){
         arena.getPlayers().clear();
         arena.getWinners().clear();
         arena.setState(ArenaState.EMPTY);
+
+        World world = Bukkit.getWorld(ConfigArenas.getArenasWorldName());
+        Bukkit.getScheduler().runTask(plugin, () -> removeEntitiesInRegion(world, arena.getRegion()));
+    }
+
+    public void removeEntitiesInRegion(World world, String regionName) {
+        // Get the RegionManager for the world
+        RegionManager regionManager = plugin.getRegionContainer().get(BukkitAdapter.adapt(world));
+        if (regionManager == null)
+            return;
+
+        // Get the region by name
+        ProtectedRegion region = regionManager.getRegion(regionName);
+
+        if (region != null) {
+            // Loop through all entities in the world
+            for (Entity entity : world.getEntitiesByClasses(Boat.class)) {
+                Location loc = entity.getLocation();
+                BlockVector3 blockVector = BukkitAdapter.asBlockVector(loc);
+
+                // Check if the entity is within the region
+                if (region.contains(blockVector)) {
+                    // Remove the entity
+                    entity.remove();
+                }
+            }
+        } else {
+            Bukkit.getLogger().info("Region " + regionName + " not found in world " + world.getName());
+        }
     }
     
     private void loadTopMap(){

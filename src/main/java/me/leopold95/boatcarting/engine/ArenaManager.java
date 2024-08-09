@@ -96,14 +96,19 @@ public class ArenaManager {
                 plugin.getLogger().warning(Config.getMessage("arena-loading.no-spawns-sections"));
                 return;
             }
+
             List<Location> spawns = new ArrayList<>();
             double sY = section.getDouble(key + ".spawn-points.y");
+            int yaw = section.getInt(key + ".spawn-points.yaw");
+
             for(String line: spawnsSection.getKeys(true)){
                 try {
                     String[] positions = spawnsSection.getString(line).split(":");
                     double sX = Double.parseDouble(positions[0]);
                     double sZ = Double.parseDouble(positions[1]);
-                    spawns.add(new Location(arenasWorld, sX, sY, sZ));
+                    Location lcoation = new Location(arenasWorld, sX, sY, sZ);
+                    lcoation.setYaw(yaw);
+                    spawns.add(lcoation);
 
                 }catch (Exception exp){
                     plugin.getLogger().warning(
@@ -111,10 +116,13 @@ public class ArenaManager {
                 }
             }
 
+            plugin.getLogger().warning(section.getString(key + ".region"));
+
             try {
                 arenas.add(new Arena(
                     specialKey,
                     numericId,
+                    section.getString(key + ".region"),
                     ArenaState.EMPTY,
                     lobbySpawn,
                     new ArrayList<>(),

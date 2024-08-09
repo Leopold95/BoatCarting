@@ -10,6 +10,7 @@ import me.leopold95.boatcarting.core.Keys;
 import me.leopold95.boatcarting.engine.Engine;
 import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.listeners.PlayerJoinListener;
+import me.leopold95.boatcarting.listeners.PlayerLeaveListener;
 import me.leopold95.boatcarting.listeners.PlayerMoveListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -34,6 +35,7 @@ public final class BoatCarting extends JavaPlugin {
         regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
 
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerLeaveListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
 
         getCommand(Commands.BOAT_CARTING).setExecutor(new BoatCartingCommand(this));

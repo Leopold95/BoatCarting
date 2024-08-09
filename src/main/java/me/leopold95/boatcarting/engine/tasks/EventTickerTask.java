@@ -1,6 +1,5 @@
 package me.leopold95.boatcarting.engine.tasks;
 
-import me.leopold95.boatcarting.BoatCarting;
 import me.leopold95.boatcarting.abstrction.RepeatingTask;
 import me.leopold95.boatcarting.core.Config;
 import me.leopold95.boatcarting.engine.Engine;
@@ -37,15 +36,17 @@ public class EventTickerTask extends RepeatingTask {
     @Override
     public void run() {
         if(secondsPassed == maxGameTime){
-            //plugin.getLogger().warning("game ended");
-            engine.endGameWithNoWinners(arena);
+            engine.stopGame(arena, Config.getMessage("stop.end-by-timer"));
             cancel();
             return;
         }
 
+        //начало игры по таймеру
         if(secondsPassed == playerWaitTime && arena.getState() == ArenaState.PLAYERS_WAITING){
+
+            //звершение события, если игроков недостаточно
             if(arena.getPlayers().size() < arena.getSpawnPoints().size()){
-                engine.endGameWithNoWinners(arena);
+                engine.stopGame(arena, Config.getMessage("stop.was-not-started"));
                 cancel();
                 return;
             }
@@ -53,7 +54,9 @@ public class EventTickerTask extends RepeatingTask {
             engine.startGame(arena);
         }
 
+        //завершение события, если арена пуста
         if(arena.getPlayers().isEmpty()){
+            engine.clearArena(arena);
             cancel();
             return;
         }
