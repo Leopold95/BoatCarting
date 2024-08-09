@@ -118,7 +118,8 @@ public class ArenaManager {
                     ArenaState.EMPTY,
                     lobbySpawn,
                     new ArrayList<>(),
-                    spawns
+                    spawns,
+                    new ArrayList<>()
                 ));
             }
             catch (Exception exp){

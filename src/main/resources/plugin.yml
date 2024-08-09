@@ -5,6 +5,9 @@ api-version: '1.20'
 author: Leopold95
 website: https://www.ukr-minecraft-plugin.fun/
 
+depend:
+  - WorldGuard
+
 commands:
   boatcarting:
     usage: "/boatcarting <args>"

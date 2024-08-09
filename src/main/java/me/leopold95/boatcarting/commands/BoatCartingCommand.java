@@ -181,30 +181,7 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
 
                 plugin.getEngine().leaveGame(player, arena.get());
             }
-
         }
-
-
-
-//        if(args[0].equals("top")){
-//            Boat boat = (Boat) player.getVehicle();
-//
-//            Vector v = player.getVelocity();
-//            boat.setVelocity(new Vector(v.getX(), v.getY() + 1, v.getZ()));
-//        }
-//
-//        if(args[0].equals("forward")){
-//            Boat boat = (Boat) player.getVehicle();
-//            Vector v = player.getEyeLocation().getDirection();
-//            boat.setVelocity(v.multiply(1.5));
-//        }
-//
-//        if(args[0].equals("forwardv")){
-//            Boat boat = (Boat) player.getVehicle();
-//            Vector v = boat.getLocation().getDirection();
-//            boat.setVelocity(v.multiply(1.5));
-//        }
-
         return true;
     }
 }

@@ -20,11 +20,13 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class Engine {
     private BoatCarting plugin;
@@ -39,6 +41,12 @@ public class Engine {
     private List<Event> activeEvents;
     @Getter
     private Location afterGameSpawn;
+    @Getter
+    private List<String> finishes;
+    @Getter
+    private int maxWinners;
+    @Getter
+    private  List<String> arenaRegions;
 
     public Engine(BoatCarting plugin) {
         this.plugin = plugin;
@@ -74,6 +82,7 @@ public class Engine {
         arena.getPlayers().add(caller);
         caller.sendMessage(Config.getMessage("game.teleported-to-arena").replace("{number}", String.valueOf(arena.getNumericId())));
         caller.teleport(arena.getLobbySpawn());
+        caller.getPersistentDataContainer().set(plugin.getKeys().IS_PLAYER_CARTING, PersistentDataType.INTEGER, 1);
     }
 
     /**
@@ -94,11 +103,11 @@ public class Engine {
 
         joiner.teleport(arena.getLobbySpawn());
         joiner.sendMessage(Config.getMessage("game.join.ok"));
+        joiner.getPersistentDataContainer().set(plugin.getKeys().CANT_MOVE, PersistentDataType.INTEGER, 1);
 
         if(arena.getPlayers().size() == arena.getSpawnPoints().size()){
             arena.setState(ArenaState.ACTIVE_GAME);
             Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(Config.getMessage("game.players-are-full")));
-            arena.setState(ArenaState.ACTIVE_GAME);
         }
     }
 
@@ -112,12 +121,59 @@ public class Engine {
 
             p.sendMessage(Config.getMessage("game.was-not-started"));
             p.teleport(afterGameSpawn);
+            p.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
         }
 
-        arena.getPlayers().clear();
-        arena.setState(ArenaState.EMPTY);
+        clearArena(arena);
+    }
 
-        //plugin.getLogger().warning(arena.toString());
+    /**
+     * Игрок покинул арену во время заезда не командой
+     * @param player игрок
+     */
+    public void unexpectedArenaLeaving(Player player){
+        Optional<Arena> playerArena = getArenaManager().getByPlayer(player);
+
+        if(playerArena.isPresent()){
+            Arena arena = playerArena.get();
+
+            arena.getPlayers().remove(player);
+        }
+
+        player.teleport(afterGameSpawn);
+        player.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
+        player.sendMessage(Config.getMessage("leave.unexpected"));
+    }
+
+    /**
+     * Завершение игры полсе победы
+     * @param arena арена
+     */
+    public void endGameAfterWinners(Arena arena){
+
+    }
+
+    /**
+     * Сообщить игру о его победе
+     * @param winner игрок, победитель
+     */
+    public void informWinner(Player winner){
+        Optional<Arena> optArena = getArenaManager().getByPlayer(winner);
+        optArena.ifPresent(arena -> {
+            if(arena.getWinners().size() == maxWinners){
+                winner.sendMessage(Config.getMessage("game.win-no-place"));
+                return;
+            }
+
+
+            arena.getWinners().add(winner);
+            String message = Config.getMessage("game.win")
+                    .replace("{place}", String.valueOf(arena.getWinners().size()));
+            winner.sendMessage(message);
+        });
+
+        winner.teleport(afterGameSpawn);
+        winner.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
     }
 
     /**
@@ -170,7 +226,13 @@ public class Engine {
      * @param arena арена
      */
     public void leaveGame(Player player, Arena arena){
+        arena.getPlayers().remove(player);
+        player.sendMessage(Config.getMessage("leave.ok"));
+        player.teleport(afterGameSpawn);
+        player.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
 
+        if(player.getPersistentDataContainer().has(plugin.getKeys().CANT_MOVE))
+            player.getPersistentDataContainer().remove(plugin.getKeys().CANT_MOVE);
     }
 
     /**
@@ -197,6 +259,16 @@ public class Engine {
     public void addForwardVelocity(Boat boat, double mod){
         Vector v = boat.getLocation().getDirection();
         boat.setVelocity(v.multiply(mod));
+    }
+
+    /**
+     * Очистка арены
+     * @param arena арена
+     */
+    private void clearArena(Arena arena){
+        arena.getPlayers().clear();
+        arena.getWinners().clear();
+        arena.setState(ArenaState.EMPTY);
     }
     
     private void loadTopMap(){
@@ -265,5 +337,13 @@ public class Engine {
         double y = Config.getDouble("after-game-spawn.position.y");
         double z = Config.getDouble("after-game-spawn.position.z");
         afterGameSpawn = new Location(spawnWorld, x, y, z);
+
+        //set max winners count
+        maxWinners = Config.getInt("max-winners");
+
+        //load arenas finishes
+        finishes = Config.getStringList("finishes");
+
+        arenaRegions = Config.getStringList("arenas-regions");
     }
 }

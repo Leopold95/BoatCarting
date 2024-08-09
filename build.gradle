@@ -15,6 +15,8 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    //WG
+    maven { url "https://maven.enginehub.org/repo/" }
 }
 
 dependencies {
@@ -23,6 +25,9 @@ dependencies {
     //lombok
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    //WG
+    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9'
 }
 
 def targetJavaVersion = 17

@@ -29,6 +29,7 @@ public class Arena {
     private Location lobbySpawn;
     private List<Player> players;
     private List<Location> spawnPoints;
+    private List<Player> winners;
 
     /**
      * Теоепортирует всех игроков по местом спавна

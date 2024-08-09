@@ -1,7 +1,26 @@
+
+#список точек финишов на аренах
+finishes:
+  - arena1finish
+  - arena2finish
+  - arena3finish
+
+
+#используется когда игрок захлдит в сеть или покидает заезд не командой
+#чтобы если что, убрать его с арены
+#регины арены должно включать в себя ПОЛНОСТЬЮ ВСЮ АРЕНУ, все ее части
+arenas-regions:
+  - arena1
+  - arena2
+  - arena3
+
+#максимальное колчество победителей
+max-winners: 4
+
 times:
-  player-wait: 20
-  max-game-duration: 60
-  game-prepare: 5
+  player-wait: 20 #время ожидания игроков на арене
+  max-game-duration: 60 #время длительности самого заеда
+  game-prepare: 5 #время подготовки к заезду, блокировки движения
 
 after-game-spawn:
   world: world
