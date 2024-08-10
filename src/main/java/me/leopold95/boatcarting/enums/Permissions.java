@@ -6,4 +6,5 @@ public class Permissions {
     public static final String STOP = "ukrplugin.boatcarting.stop";
     public static final String JOIN = "ukrplugin.boatcarting.join";
     public static final String LEAVE = "ukrplugin.boatcarting.leave";
+    public static final String BOAT = "ukrplugin.boatcarting.boat";
 }

@@ -4,12 +4,14 @@ import me.leopold95.boatcarting.BoatCarting;
 import me.leopold95.boatcarting.core.Config;
 import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.enums.Permissions;
+import me.leopold95.boatcarting.menus.BoatSelectMenu;
 import me.leopold95.boatcarting.models.Arena;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -187,6 +189,18 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                 }
 
                 plugin.getEngine().leaveGame(player, arena.get());
+            }
+
+            case Commands.BOAT -> {
+                if(!player.hasPermission(Permissions.BOAT)){
+                    player.sendMessage(Config.getMessage("no-permission"));
+                    return true;
+                }
+
+                Inventory inv = new BoatSelectMenu().getInventory();
+                plugin.getButtonFormats().format(inv);
+
+                player.openInventory(inv);
             }
         }
         return true;

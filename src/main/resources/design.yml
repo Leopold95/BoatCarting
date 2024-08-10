@@ -1,0 +1,29 @@
+menu-name: "Название меню"
+
+boats:
+  boat-1:
+    slot: 19
+    material: OAK_BOAT
+    name: Човен 1
+    type: OAK #https://jd.papermc.io/paper/1.21/org/bukkit/entity/Boat.Type.html
+    lore:
+      - "Опис строка 1"
+
+  boat-2:
+    slot: 21
+    material: BIRCH_BOAT
+    name: Човен 2
+    type: OAK #https://jd.papermc.io/paper/1.21/org/bukkit/entity/Boat.Type.html
+    lore:
+      - "Опис строка 1"
+
+slots:
+  0: RED_STAINED_GLASS_PANE
+  1: RED_STAINED_GLASS_PANE
+  2: RED_STAINED_GLASS_PANE
+  3: RED_STAINED_GLASS_PANE
+  4: RED_STAINED_GLASS_PANE
+  5: RED_STAINED_GLASS_PANE
+  6: RED_STAINED_GLASS_PANE
+  7: RED_STAINED_GLASS_PANE
+  8: RED_STAINED_GLASS_PANE

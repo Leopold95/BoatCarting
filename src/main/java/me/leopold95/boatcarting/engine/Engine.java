@@ -11,6 +11,7 @@ import me.leopold95.boatcarting.abstrction.RepeatingTask;
 import me.leopold95.boatcarting.core.Config;
 import me.leopold95.boatcarting.core.ConfigArenas;
 import me.leopold95.boatcarting.engine.tasks.EventTickerTask;
+import me.leopold95.boatcarting.enums.BoatContainer;
 import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.models.Arena;
 import me.leopold95.boatcarting.models.ArenaState;
@@ -27,13 +28,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Engine {
     private BoatCarting plugin;
@@ -55,8 +56,17 @@ public class Engine {
     @Getter
     private  List<String> arenaRegions;
 
+    @Getter
+    private List<Integer> bannedSlots;
+
+    @Getter
+    private List<BoatContainer> boatTypes;
+
     public Engine(BoatCarting plugin) {
         this.plugin = plugin;
+
+        boatTypes = new ArrayList<>();
+        bannedSlots = new ArrayList<>();
 
         toTopMap = new HashMap<>();
         toForwardMap = new HashMap<>();
@@ -213,13 +223,15 @@ public class Engine {
         optArena.ifPresent(arena -> {
             if(arena.getWinners().size() == maxWinners){
                 winner.sendMessage(Config.getMessage("game.win-no-place"));
-                return;
+            }
+            else {
+                String message = Config.getMessage("game.win")
+                        .replace("{place}", String.valueOf(arena.getWinners().size()));
+                winner.sendMessage(message);
             }
 
+            arena.getPlayers().remove(winner);
             arena.getWinners().add(winner);
-            String message = Config.getMessage("game.win")
-                    .replace("{place}", String.valueOf(arena.getWinners().size()));
-            winner.sendMessage(message);
         });
 
         winner.teleport(afterGameSpawn);
@@ -380,5 +392,52 @@ public class Engine {
         finishes = Config.getStringList("finishes");
 
         arenaRegions = Config.getStringList("arenas-regions");
+
+        loadButtons();
+    }
+
+    private void loadButtons(){
+        ConfigurationSection section = Config.getDesignConfig().getConfigurationSection("boats");
+
+        if(section == null){
+            plugin.getLogger().warning(Config.getMessage("gui.bad-boats-section"));
+            return;
+        }
+        for(String key: section.getKeys(true)){
+            try {
+                int slot = section.getInt(key + ".slot");
+                String mat = section.getString(key + ".material");
+                String name = section.getString(key + ".name");
+
+
+                ItemStack item = new ItemStack(Material.valueOf(mat));
+                ItemMeta meta = item.getItemMeta();
+
+                meta.setDisplayName(name);
+
+                List<TextComponent> newLove =  Config.getDesignConfig().getStringList(key + ".lore")
+                        .stream()
+                        .map(Component::text)
+                        .toList();
+
+                meta.lore(newLove);
+                item.setItemMeta(meta);
+
+                bannedSlots.add(slot);
+
+                var type = new BoatContainer(
+                    Boat.Type.valueOf(key + ".type"),
+                    slot,
+                    item
+                );
+                boatTypes.add(type);
+            }
+            catch (Exception exception){
+                String message = Config.getMessage("gui.bad-boats-material")
+                        .replace("%exp%", exception.getMessage());
+                plugin.getLogger().warning(message);
+            }
+        }
+
     }
 }

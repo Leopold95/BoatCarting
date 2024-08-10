@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import me.leopold95.boatcarting.BoatCarting;
 import me.leopold95.boatcarting.core.Config;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -40,6 +41,17 @@ public class Arena {
             Player player = players.get(i);
             player.teleport(spawnPoints.get(i).toCenterLocation());
             Boat boat = (Boat) player.getWorld().spawnEntity(player.getLocation(), EntityType.BOAT);
+
+            if(player.getPersistentDataContainer().has(BoatCarting.plugin.getKeys().PLAYER_BOAT)){
+                try {
+                    String type = player.getPersistentDataContainer().get(BoatCarting.plugin.getKeys().PLAYER_BOAT, PersistentDataType.STRING);
+                    boat.setBoatType(Boat.Type.valueOf(type));
+                }
+                catch (Exception exception){
+                    BoatCarting.plugin.getLogger().warning(exception.getMessage());
+                }
+            }
+
             boat.addPassenger(player);
         }
     }

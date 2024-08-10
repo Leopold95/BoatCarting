@@ -29,3 +29,6 @@ permissions:
   ukrplugin.boatcarting.prestart:
     default: op
     description: "Використовується для доступу к команді почку гри події при недостатніх гравців або раніше часу"
+  ukrplugin.boatcarting.boat:
+    default: op
+    description: "Використовується для доступу к команді вибору човна"

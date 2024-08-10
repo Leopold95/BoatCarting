@@ -1,5 +1,6 @@
 package me.leopold95.boatcarting.core;
 
+import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -19,9 +20,14 @@ public class Config {
     private static File configFile;
     private static FileConfiguration config;
 
+    private static File designFile;
+    @Getter
+    private static FileConfiguration designConfig;
+
     public static void register(JavaPlugin plugin) {
         createMessagesConfig("messages.yml", plugin);
         createConfig("config.yml", plugin);
+        createDesignConfig("design.yml", plugin);
     }
 
     public static boolean existsConfig(String path){
@@ -107,6 +113,21 @@ public class Config {
             e.printStackTrace();
         }
     }
+
+    private static void createDesignConfig(String fileName, JavaPlugin plugin){
+        designFile = new File(plugin.getDataFolder(), fileName);
+        if (!designFile.exists()) {
+            designFile.getParentFile().mkdirs();
+            plugin.saveResource(fileName, false);
+        }
+        designConfig = YamlConfiguration.loadConfiguration(designFile);
+        try {
+            designConfig.save(designFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private static void createConfig(String file, JavaPlugin plugin) {
         configFile = new File(plugin.getDataFolder(), file);
