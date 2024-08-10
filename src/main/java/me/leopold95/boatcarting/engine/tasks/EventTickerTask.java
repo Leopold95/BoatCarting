@@ -61,7 +61,7 @@ public class EventTickerTask extends RepeatingTask {
             return;
         }
 
-        plugin.getLogger().warning(String.valueOf(secondsPassed));
+        //plugin.getLogger().warning(String.valueOf(secondsPassed));
         secondsPassed++;
     }
 }

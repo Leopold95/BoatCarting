@@ -19,6 +19,7 @@ import me.leopold95.boatcarting.models.Event;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -90,7 +91,9 @@ public class Engine {
 
         String message = Config.getMessage("game.started") + command;
 
-        TextComponent text = Component.text().append(Component.text(message)).clickEvent(ClickEvent.runCommand(command)).build();
+        TextComponent text = Component.text(message)
+                .clickEvent(ClickEvent.runCommand(command))
+                .hoverEvent(HoverEvent.showText(Component.text(Config.getMessage("clickable"))));
 
         Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(text));
 

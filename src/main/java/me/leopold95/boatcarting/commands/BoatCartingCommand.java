@@ -32,7 +32,8 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                 Commands.JOIN_EVENT,
                 Commands.STOP_EVENT,
                 Commands.LEAVE_EVENT,
-                Commands.PRE_START_EVENT
+                Commands.PRE_START_EVENT,
+                Commands.BOAT
         );
     }
 
