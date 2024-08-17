@@ -62,7 +62,7 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
 
                 Optional<Arena> optArena = plugin.getEngine().getArenaManager().getByPlayer(player);
                 if(optArena.isPresent()){
-                    player.sendMessage("game.already-in-game");
+                    player.sendMessage(Config.getMessage("game.already-in-game"));
                     return true;
                 }
 

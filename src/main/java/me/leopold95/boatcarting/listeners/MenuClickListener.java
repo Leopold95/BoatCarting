@@ -57,7 +57,7 @@ public class MenuClickListener implements Listener {
         if(opt.isEmpty())
             return;
 
-        player.getPersistentDataContainer().set(plugin.getKeys().PLAYER_BOAT, PersistentDataType.STRING, button.getType().toString());
+        player.getPersistentDataContainer().set(plugin.getKeys().PLAYER_BOAT, PersistentDataType.STRING, opt.get().getType().toString());
         String message = Config.getMessage("gui.selected")
                         .replace("{name}", button.getItemMeta().getDisplayName())
                         .replace("{type}", opt.get().getType().toString());

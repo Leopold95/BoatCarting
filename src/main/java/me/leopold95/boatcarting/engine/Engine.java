@@ -84,7 +84,7 @@ public class Engine {
      * Запуск аодбора игроков для начала игры
      */
     public void startPlayersSearching(Player caller, Arena arena){
-        String command = Config.getMessage("command-template")
+        String command =  "/" + Config.getMessage("command-template")
                 .replace("{first}", Commands.BOAT_CARTING)
                 .replace("{second}", Commands.JOIN_EVENT)
                 .replace("{third}", String.valueOf(arena.getNumericId()));
@@ -224,6 +224,9 @@ public class Engine {
     public void informWinner(Player winner){
         Optional<Arena> optArena = getArenaManager().getByPlayer(winner);
         optArena.ifPresent(arena -> {
+            winner.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
+            arena.getWinners().add(winner);
+
             if(arena.getWinners().size() == maxWinners){
                 winner.sendMessage(Config.getMessage("game.win-no-place"));
             }
@@ -233,12 +236,9 @@ public class Engine {
                 winner.sendMessage(message);
             }
 
+            winner.teleport(afterGameSpawn);
             arena.getPlayers().remove(winner);
-            arena.getWinners().add(winner);
         });
-
-        winner.teleport(afterGameSpawn);
-        winner.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
     }
 
     /**
@@ -247,9 +247,10 @@ public class Engine {
      * @param arena арена
      */
     public void leaveGame(Player player, Arena arena){
+        player.teleport(afterGameSpawn);
+
         arena.getPlayers().remove(player);
         player.sendMessage(Config.getMessage("leave.ok"));
-        player.teleport(afterGameSpawn);
         player.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
 
         if(player.getPersistentDataContainer().has(plugin.getKeys().CANT_MOVE))
@@ -273,8 +274,22 @@ public class Engine {
     }
 
     public void addTopVelocity(Boat boat, double mod){
-        Vector v = boat.getVelocity();
-        boat.setVelocity(new Vector(v.getX(), v.getY() + mod, v.getZ()));
+//        Vector v = boat.getVelocity();
+//        Vector direction = boat.getLocation().getDirection().multiply(Config.getDouble("if-top-forward-velocity"));
+//
+//        boat.setVelocity(new Vector(v.getX(), v.getY() + mod, v.getZ()));
+        //boat.setVelocity(direction.add(v));
+
+
+        // Create a vector for forward and upward movement
+        Vector direction = boat.getLocation().getDirection();
+        Vector upward = new Vector(0, mod, 0);
+        Vector velocity = direction.add(upward);
+
+        // Normalize and scale the vector for a balanced movement
+        velocity.normalize().multiply(Config.getDouble("if-top-forward-velocity"));
+        boat.setVelocity(direction.add(velocity));
+        //addForwardVelocity(boat, Config.getDouble("if-top-forward-velocity"));
     }
 
     public void addForwardVelocity(Boat boat, double mod){
@@ -406,12 +421,12 @@ public class Engine {
             plugin.getLogger().warning(Config.getMessage("gui.bad-boats-section"));
             return;
         }
+
         for(String key: section.getKeys(true)){
             try {
                 int slot = section.getInt(key + ".slot");
                 String mat = section.getString(key + ".material");
                 String name = section.getString(key + ".name");
-
 
                 ItemStack item = new ItemStack(Material.valueOf(mat));
                 ItemMeta meta = item.getItemMeta();
@@ -426,18 +441,20 @@ public class Engine {
                 meta.lore(newLove);
                 item.setItemMeta(meta);
 
-                bannedSlots.add(slot);
-
                 var type = new BoatContainer(
-                    Boat.Type.valueOf(key + ".type"),
+                    Boat.Type.valueOf(section.getString(key + ".type")),
                     slot,
                     item
                 );
+
+                bannedSlots.add(slot);
                 boatTypes.add(type);
             }
             catch (Exception exception){
                 String message = Config.getMessage("gui.bad-boats-material")
-                        .replace("%exp%", exception.getMessage());
+                        .replace("%exp%", exception.getMessage())
+                        .replace("{sec}", key);
+                exception.printStackTrace();
                 plugin.getLogger().warning(message);
             }
         }

@@ -85,8 +85,10 @@ public class PlayerMoveListener implements Listener {
         }
 
         boolean canWin = plugin.getEngine().getFinishes().stream().anyMatch(toNames::contains);
-        if(canWin)
+        if(canWin){
             plugin.getEngine().informWinner(player);
+        }
+
     }
 
     /**
