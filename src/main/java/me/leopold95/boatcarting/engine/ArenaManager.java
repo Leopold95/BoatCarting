@@ -69,37 +69,39 @@ public class ArenaManager {
         }
 
 
-        for(String key: section.getKeys(true)){
+        for(String arenaKey: section.getKeys(true)){
             //проверка уникального ключа
-            String specialKey = section.getString(key);
-            if(arenas.stream().anyMatch(a -> a.getSpecialId().equals(key))){
+            String specialKey = section.getString(arenaKey);
+            if(arenas.stream().anyMatch(a -> a.getSpecialId().equals(arenaKey))){
                 plugin.getLogger().warning(Config.getMessage("arena-loading.same-special"));
                 continue;
             }
 
             //проверка уникального цифрового ключа
-            int numericId = section.getInt(key + ".numeric-id");
+            int numericId = section.getInt(arenaKey + ".numeric-id");
             if(arenas.stream().anyMatch(a -> a.getNumericId() == numericId)){
                 plugin.getLogger().warning(Config.getMessage("arena-loading.same-numeric"));
                 continue;
             }
 
             //инит спавна лобби
-            double x = section.getDouble(key + ".lobbySpawn.x");
-            double y = section.getDouble(key + ".lobbySpawn.y");
-            double z = section.getDouble(key + ".lobbySpawn.z");
+            double x = section.getDouble(arenaKey + ".lobbySpawn.x");
+            double y = section.getDouble(arenaKey + ".lobbySpawn.y");
+            double z = section.getDouble(arenaKey + ".lobbySpawn.z");
             Location lobbySpawn = new Location(arenasWorld, x, y, z);
 
             //инит позиций спавнов
-            ConfigurationSection spawnsSection = section.getConfigurationSection(key + ".spawn-points.poses");
+            ConfigurationSection spawnsSection = section.getConfigurationSection(arenaKey + ".spawn-points.poses");
             if(spawnsSection == null || spawnsSection.getKeys(false).isEmpty()){
-                plugin.getLogger().warning(Config.getMessage("arena-loading.no-spawns-sections"));
+                plugin.getLogger().warning(Config.getMessage("arena-loading.no-spawns-sections")
+                        .replace("{arena}", arenaKey)
+                        .replace("{exp}", "section do not exist or empty"));
                 return;
             }
 
             List<Location> spawns = new ArrayList<>();
-            double sY = section.getDouble(key + ".spawn-points.y");
-            int yaw = section.getInt(key + ".spawn-points.yaw");
+            double sY = section.getDouble(arenaKey + ".spawn-points.y");
+            int yaw = section.getInt(arenaKey + ".spawn-points.yaw");
 
             for(String line: spawnsSection.getKeys(true)){
                 try {
@@ -116,13 +118,14 @@ public class ArenaManager {
                 }
             }
 
-            plugin.getLogger().warning(section.getString(key + ".region"));
+            plugin.getLogger().warning(section.getString(arenaKey + ".region"));
 
             try {
                 arenas.add(new Arena(
                     specialKey,
+                    section.getString(arenaKey + ".name"),
                     numericId,
-                    section.getString(key + ".region"),
+                    section.getString(arenaKey + ".region"),
                     ArenaState.EMPTY,
                     lobbySpawn,
                     new ArrayList<>(),

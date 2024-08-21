@@ -12,6 +12,8 @@ public class Keys {
     public NamespacedKey PLAYER_BOAT;
     public NamespacedKey CLICKABLE_BOAT;
 
+    public NamespacedKey JUMPING_ITEM;
+
     public Keys(BoatCarting plugin){
         this.plugin = plugin;
 
@@ -20,5 +22,7 @@ public class Keys {
 
         PLAYER_BOAT = new NamespacedKey(plugin, "PLAYER_BOAT");
         CLICKABLE_BOAT = new NamespacedKey(plugin, "CLICKABLE_BOAT");
+
+        JUMPING_ITEM = new NamespacedKey(plugin, "JUMPING_ITEM");
     }
 }

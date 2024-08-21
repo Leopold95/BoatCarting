@@ -32,3 +32,6 @@ permissions:
   ukrplugin.boatcarting.boat:
     default: op
     description: "Використовується для доступу к команді вибору човна"
+  ukrplugin.boatcarting.available:
+    default: op
+    description: "Передивитися на якиї арена зараз їде набор гравців"

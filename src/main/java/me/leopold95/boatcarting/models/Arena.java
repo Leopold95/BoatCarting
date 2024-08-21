@@ -24,6 +24,7 @@ import java.util.List;
 @ToString
 public class Arena {
     private String specialId;
+    private String name;
     private int numericId;
     private String region;
     @Setter
@@ -53,6 +54,10 @@ public class Arena {
             }
 
             boat.addPassenger(player);
+
+            if(Config.getBoolean("jump-item.enabled")){
+                player.getInventory().addItem(BoatCarting.plugin.getItemManager().getJumpItem());
+            }
         }
     }
 

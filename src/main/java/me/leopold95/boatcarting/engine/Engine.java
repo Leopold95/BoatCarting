@@ -103,6 +103,7 @@ public class Engine {
         caller.sendMessage(Config.getMessage("game.teleported-to-arena").replace("{number}", String.valueOf(arena.getNumericId())));
         caller.teleport(arena.getLobbySpawn());
         caller.getPersistentDataContainer().set(plugin.getKeys().IS_PLAYER_CARTING, PersistentDataType.INTEGER, 1);
+        plugin.getSounds().playTo(caller, "sounds.joined");
     }
 
     /**
@@ -141,6 +142,7 @@ public class Engine {
 
                     player.sendTitlePart(TitlePart.TITLE, Component.text(Config.getMessage("game.starting-in")
                             .replace("{time}", String.valueOf(secondsPassed))));
+                    plugin.getSounds().playTo(player, "sounds.timer-to-game-tick");
                 }
 
                 secondsPassed++;
@@ -168,7 +170,7 @@ public class Engine {
         joiner.teleport(arena.getLobbySpawn());
         joiner.sendMessage(Config.getMessage("game.join.ok"));
         joiner.getPersistentDataContainer().set(plugin.getKeys().IS_PLAYER_CARTING, PersistentDataType.INTEGER, 1);
-
+        plugin.getSounds().playTo(joiner, "sounds.joined");
 
         if(arena.getPlayers().size() == arena.getSpawnPoints().size()){
             arena.setState(ArenaState.ACTIVE_GAME);
@@ -187,6 +189,8 @@ public class Engine {
             p.sendMessage(message);
             p.teleport(afterGameSpawn);
             p.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
+            plugin.getSounds().playTo(p, "sounds.stopped");
+            Bukkit.getScheduler().runTask(plugin, () -> {plugin.getItemManager().tryRemoveJumpingItem(p);});
         }
 
         clearArena(arena);
@@ -208,6 +212,7 @@ public class Engine {
         player.teleport(afterGameSpawn);
         player.getPersistentDataContainer().remove(plugin.getKeys().IS_PLAYER_CARTING);
         player.sendMessage(Config.getMessage("leave.unexpected"));
+        Bukkit.getScheduler().runTask(plugin, () -> {plugin.getItemManager().tryRemoveJumpingItem(player);});
     }
 
     /**
@@ -238,6 +243,7 @@ public class Engine {
 
             winner.teleport(afterGameSpawn);
             arena.getPlayers().remove(winner);
+            Bukkit.getScheduler().runTask(plugin, () -> {plugin.getItemManager().tryRemoveJumpingItem(winner);});
         });
     }
 
@@ -255,6 +261,8 @@ public class Engine {
 
         if(player.getPersistentDataContainer().has(plugin.getKeys().CANT_MOVE))
             player.getPersistentDataContainer().remove(plugin.getKeys().CANT_MOVE);
+
+        Bukkit.getScheduler().runTask(plugin, () -> {plugin.getItemManager().tryRemoveJumpingItem(player);});
     }
 
     /**
@@ -274,13 +282,6 @@ public class Engine {
     }
 
     public void addTopVelocity(Boat boat, double mod){
-//        Vector v = boat.getVelocity();
-//        Vector direction = boat.getLocation().getDirection().multiply(Config.getDouble("if-top-forward-velocity"));
-//
-//        boat.setVelocity(new Vector(v.getX(), v.getY() + mod, v.getZ()));
-        //boat.setVelocity(direction.add(v));
-
-
         // Create a vector for forward and upward movement
         Vector direction = boat.getLocation().getDirection();
         Vector upward = new Vector(0, mod, 0);
@@ -387,7 +388,8 @@ public class Engine {
     private void loadOther() {
         ConfigurationSection section = Config.getSection("after-game-spawn");
         if(section == null || section.getKeys(false).isEmpty()){
-            plugin.getLogger().warning(Config.getMessage("loading.no-after-game-spawn-section"));
+            plugin.getLogger().warning(
+                    Config.getMessage("loading.no-after-game-spawn-section"));
             return;
         }
 
@@ -454,7 +456,6 @@ public class Engine {
                 String message = Config.getMessage("gui.bad-boats-material")
                         .replace("%exp%", exception.getMessage())
                         .replace("{sec}", key);
-                exception.printStackTrace();
                 plugin.getLogger().warning(message);
             }
         }

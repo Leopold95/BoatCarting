@@ -6,6 +6,7 @@ import me.leopold95.boatcarting.enums.Commands;
 import me.leopold95.boatcarting.enums.Permissions;
 import me.leopold95.boatcarting.menus.BoatSelectMenu;
 import me.leopold95.boatcarting.models.Arena;
+import me.leopold95.boatcarting.models.ArenaState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -33,7 +34,8 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                 Commands.STOP_EVENT,
                 Commands.LEAVE_EVENT,
                 Commands.PRE_START_EVENT,
-                Commands.BOAT
+                Commands.BOAT,
+                Commands.AVAILABLE
         );
     }
 
@@ -202,6 +204,27 @@ public class BoatCartingCommand implements CommandExecutor, TabCompleter {
                 plugin.getButtonFormats().format(inv);
 
                 player.openInventory(inv);
+            }
+
+            case Commands.AVAILABLE -> {
+                if(!player.hasPermission(Permissions.AVAILABLE)){
+                    player.sendMessage(Config.getMessage("no-permission"));
+                    return true;
+                }
+
+                var list = plugin.getEngine().getArenaManager().getArenas().stream().filter(a -> a.getState() == ArenaState.PLAYERS_WAITING).toList();
+
+                if(list.isEmpty()){
+                    player.sendMessage(Config.getMessage("available.none"));
+                    return true;
+                }
+
+                for(Arena a : list){
+                    String message = Config.getMessage("available.arena")
+                                    .replace("{num}", String.valueOf(a.getNumericId()))
+                                    .replace("{name}", a.getName());
+                    player.sendMessage(message);
+                }
             }
         }
         return true;

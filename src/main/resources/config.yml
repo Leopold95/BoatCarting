@@ -13,6 +13,22 @@ arenas-regions:
   - arena2
   - arena3
 
+sounds:
+  volume: 100
+  joined: ""
+  timer-to-game-tick: ""
+  finished: ""
+  stopped: ""
+
+jump-item:
+  top: 0.05 #Модификатор ускорения вверх. Ускорение в перед фиксированное в поле if-top-forward-velocity
+  enabled: true
+  cooldown: 5
+  material: DIRT
+  name: Стрибок
+  lore:
+    - "Опис строка 1"
+
 #максимальное колчество победителей
 max-winners: 4
 
