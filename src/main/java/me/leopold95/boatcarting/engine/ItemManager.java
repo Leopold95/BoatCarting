@@ -74,7 +74,7 @@ public class ItemManager {
         Boat boat = (Boat) player.getVehicle();
         plugin.getEngine().addTopVelocity(boat, mod);
 
-        player.sendMessage(Config.getMessage("jump-item.top"));
+        player.sendMessage(Config.getMessage("jump-item.ok"));
     }
 
     public void tryRemoveJumpingItem(Player player){

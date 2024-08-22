@@ -21,7 +21,7 @@ sounds:
   stopped: ""
 
 jump-item:
-  top: 0.05 #Модификатор ускорения вверх. Ускорение в перед фиксированное в поле if-top-forward-velocity
+  top: 0.1 #Модификатор ускорения вверх. Ускорение в перед фиксированное в поле if-top-forward-velocity
   enabled: true
   cooldown: 5
   material: DIRT
